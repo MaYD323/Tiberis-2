@@ -84,6 +84,8 @@ class StudentAI():
 
         if limit==d:
             moves = search_board.get_all_possible_moves(self.color)
+            if len(moves)<=0:
+                return -100, ancester_index
             max_heu = -100
             heu = max_heu
             for i in range(len(moves)):
@@ -108,6 +110,8 @@ class StudentAI():
                         oppo_color=2
                         oppo_moves = b.get_all_possible_moves(oppo_color)
                     next_stage_board = []
+                    if len(oppo_moves)==0:
+                        return 20, [i,z]
                     for x in range(len(oppo_moves)):
                         for y in range(len(oppo_moves[x])):
                             next_b = self.generate_board(b,oppo_moves[x][y],oppo_color)
@@ -121,6 +125,8 @@ class StudentAI():
             return max_heu,max_move_index
         else:
             moves = search_board.get_all_possible_moves(self.color)
+            if len(moves)<=0:
+                return -100, ancester_index
             max_heu = -100
             outter_ini = randint(0, len(moves) - 1)
             max_move_index = (outter_ini, randint(0, len(moves[outter_ini]) - 1))
@@ -134,6 +140,8 @@ class StudentAI():
                         oppo_color =2
                         oppo_moves = b.get_all_possible_moves(oppo_color)
                     next_stage_board = []
+                    if len(oppo_moves)<=0:
+                        return 20,ancester_index
                     for x in range(len(oppo_moves)):
                         for y in range(len(oppo_moves[x])):
                             next_b = self.generate_board(b, oppo_moves[x][y], oppo_color)
@@ -175,7 +183,7 @@ class StudentAI():
                 nb.board[i][z].is_king = search_board.board[i][z].is_king
         nb.make_move(move,self.color)
         heuristic = 20
-        if self.color == 2:
+        if self.color == 2: #we are white
             heuristic -= nb.black_count
             for i in nb.board:
                 for z in i:
@@ -183,7 +191,7 @@ class StudentAI():
                         heuristic+=1
         else:
             heuristic -= nb.white_count
-            for i in nb.board:
+            for i in nb.board: #we are black
                 for z in i:
                     if z.is_king and z.color==1:
                         heuristic += 1
