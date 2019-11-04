@@ -38,6 +38,8 @@ class Move:
         if (s == '-1'):
             return cls([])
         else:
+            print()
+            print("-------------"+s+"-------------")
             sequencelist = list(map(lambda x:eval(x),s.split('-')))
             return cls(sequencelist)
 
