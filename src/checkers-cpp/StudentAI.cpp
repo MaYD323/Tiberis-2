@@ -23,9 +23,10 @@ Move StudentAI::GetMove(Move move)
             player = 1;
             opponent = 2;
         }else{
-            board.makeMove(move,2);
             player = 2;
             opponent = 1;
+            board.makeMove(move,opponent);
+
         }
     }else{
         board.makeMove(move, opponent);
