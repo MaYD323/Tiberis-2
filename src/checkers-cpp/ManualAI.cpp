@@ -33,8 +33,8 @@ Move ManualAI::GetMove(Move move)
     int n = -1;
     int m = -1;
     do {
-        cin >> n;
-        cin >> m;
+        n = 0;//cin >> n;
+        m = 0;//cin >> m;
         if ((n < 0 || n >= moves.size()) || (m < 0 || m >= moves[n].size()))
             cout << "Invalid move" << "\n" << "Waiting for input {int} {int}: ";
     } while ((n < 0 || n >= moves.size()) || (m < 0 || m >= moves[n].size()));

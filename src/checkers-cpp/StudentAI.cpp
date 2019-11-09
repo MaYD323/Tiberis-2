@@ -2,6 +2,7 @@
 #include <random>
 #include <iostream>
 #include <vector>
+#include <time.h>
 using namespace std;
 StudentAI::StudentAI(int col,int row,int p)
 	:AI(col, row, p)
@@ -16,6 +17,7 @@ StudentAI::StudentAI(int col,int row,int p)
 
 Move StudentAI::GetMove(Move move)
 {
+    time(&start);
     //cout << "AI::MOVE input " << move.seq.size()<< endl;
     if(move_count == 0){
         if(move.seq.size()== 0){
@@ -66,7 +68,7 @@ Move StudentAI::GetMove(Move move)
     
     
     
-    /* emitted for shell testing */ //cout << "--------TEST MINXMAX---------" << endl;
+    cout << "--------TEST MINXMAX---------" << endl;
     vector<Move> vm;
     int t;
     int v = -9999;
@@ -75,12 +77,12 @@ Move StudentAI::GetMove(Move move)
         for (auto j : i){
             vm.clear();
             vm.push_back(j);
-            t = minmax(vm, true, 6);
+            t = minmax(vm, true, 8);
             if(t > v){
                 v = t;
                 mv = j;
             }
-            /* emitted for shell testing */ // cout << "AI : test move : " << j.toString()<< "minmax value : " <<t << endl;
+            cout << "AI : test move : " << j.toString()<< "minmax value : " <<t << endl;
         }
     }
     //vm.push_back(moves[0][0]);
@@ -93,10 +95,10 @@ Move StudentAI::GetMove(Move move)
     /* emitted for shell testing */ //cout << res.toString() << endl;
     board.makeMove(res,player);
     move_count++;
-    if(move_count > -1){
-        /* emitted for shell testing */ //cout << "AI: Depth : " << move_count << " Branch Factor::" <<counter << endl;
-    }
-    /* emitted for shell testing */ //cout << "----------END AI ------------" << endl;
+    time(&end);
+    measure_time();
+    /* emitted for shell testing */ //cout << "AI: Depth : " << move_count << " Branch Factor::" <<counter << endl;
+    cout << "----------END AI ------------" << endl;
     return res;
 
 
@@ -170,6 +172,75 @@ int StudentAI::minmax(vector<Move> m, bool max, int d){
     
     return v;
 }
-
-
+double StudentAI::measure_time(){
+    double d = difftime(end, start);
+    total_time += d;
+    time_count.push_back(d);
+    return d;
+}
+StudentAI::~StudentAI(){
+    for (auto i : time_count){
+        cout << i << "-";
+    }
+    cout << endl;
+    
+    for (auto i : possible_moves_counts){
+        cout << i << "-";
+    }
+    cout << endl;
+}
 // some util functions
+
+
+// logger
+logger::logger(string name, string path, string ip){
+    this->name = name;
+    
+    time_t rawtime;
+    struct tm * timeinfo;
+    time (&rawtime);
+    timeinfo = localtime (&rawtime);
+    
+    int i = 0;
+    char buffer [80];
+    char buffer1 [80];
+
+    strftime (buffer,80,"%F-%H-%M-%S.log",timeinfo);
+    while( ifstream(buffer).good()){
+        strftime (buffer,80,"%F-%H-%M-%S.log",timeinfo);
+        sprintf(buffer1, "-%d",i);
+        strcat(buffer, buffer1);
+        strcat(buffer,".log");
+        i++;
+    }
+    this->name = name;
+
+    strcpy(buffer1, path.c_str());
+    this->path = strcat(buffer1, buffer);
+    this->filename = buffer;
+    fs.open(this->path, std::fstream::in | std::fstream::out | std::fstream::app);
+    fs << "name : " << this->name << endl;
+    log_data.append("name : ");
+    log_data.append(this->name);
+    log_data.append("\n");
+    
+}
+logger::~logger(){
+    fs.close();
+    cout << log_data << endl;
+}
+int logger::log(string c, string end){
+    write(c);
+    write(end);
+    log_data.append(c);
+    log_data.append(end);
+    return 0;
+}
+int logger::upload(string c){
+    
+    return 0;
+}
+int logger::write(string c){
+    fs << c ;
+    return 0;
+}

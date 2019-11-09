@@ -1,0 +1,2 @@
+python3 AI_Runner.py 7 7 2 l Sample_AIs/Random_AI/main.py ../src/checkers-cpp/main
+python3 AI_Runner.py 7 7 2 l ../src/checkers-cpp/main Sample_AIs/Random_AI/main.py  
