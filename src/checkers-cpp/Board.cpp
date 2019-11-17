@@ -99,7 +99,7 @@ void Board::checkInitialVariable() {
         throw  InvalidParameterError();
     }
     //M = 2P + Q
-    else if (row != 2 * p + (row - 2 * p))
+    else if (row != 2 * p + (row - 2 * p))// this is seriously stupid
     {
         cerr<<"M != 2P + Q"<<endl;
         throw InvalidParameterError();
