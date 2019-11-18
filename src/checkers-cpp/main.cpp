@@ -5,23 +5,23 @@
 
 #include "brd.h"
 #include "StudentAI.h"
-int main11(){
-    logger l("l1");
-    l.log("line1");
-    l.log("line2");
-    return 0;
-}
-
-int main1(){
-    brd a(5,5,5);
-    a.showBoard();
-    
-    
-    
-    
-    
-    return 0;
-}
+//int main11(){
+//    logger l("l1");
+//    l.log("line1");
+//    l.log("line2");
+//    return 0;
+//}
+//
+//int main1(){
+//    brd a(5,5,5);
+//    a.showBoard();
+//
+//
+//
+//
+//
+//    return 0;
+//}
 
 int main2(int argc, char *argv[])
 {
@@ -52,37 +52,37 @@ int main2(int argc, char *argv[])
 
 
 int main(){
-    Board a(7, 7, 2);
-    //a.initializeGame();
-    a.board[4][0] = Checker("B",4,0);
-    a.board[5][1] = Checker("W",5,1);
-    a.board[5][3] = Checker("W",5,1);
-    a.blackCount++;
-    a.whiteCount=2;
-    a.showBoard();
-    
-    vector<vector<Move>> moves = a.getAllPossibleMoves("B");
+//    Board a(7, 7, 2);
+//    //a.initializeGame();
+//    a.board[4][0] = Checker("B",4,0);
+//    a.board[5][1] = Checker("W",5,1);
+//    a.board[5][3] = Checker("W",5,1);
+//    a.blackCount++;
+//    a.whiteCount=2;
+//    a.showBoard();
+//
+//    vector<vector<Move>> moves = a.getAllPossibleMoves("B");
+//
+//    int c = 0;
+//    for (auto i : moves){
+//        for (auto j : i){
+//            c++;
+//            cout << j.toString() << endl;
+//            a.makeMove(j, 1);
+//        }
+//    }
+//    cout << c << endl;
+//    a.showBoard();
+//
+//    moves = a.getAllPossibleMoves("B");
 
-    int c = 0;
-    for (auto i : moves){
-        for (auto j : i){
-            c++;
-            cout << j.toString() << endl;
-            a.makeMove(j, 1);
-        }
-    }
-    cout << c << endl;
-    a.showBoard();
-    
-    moves = a.getAllPossibleMoves("B");
-
-    for (auto i : moves){
-        for (auto j : i){
-            c++;
-            cout << j.toString() << endl;
-        }
-    }
-    
+//    for (auto i : moves){
+//        for (auto j : i){
+//            c++;
+//            cout << j.toString() << endl;
+//        }
+//    }
+//
     
     
     brd d(7, 7, 2);
@@ -98,17 +98,17 @@ int main(){
     d.put(4,0,1);
     d.put(5,1,-1);
     d.put(5,3,-1);
-//    d.showBoard();
+    d.showBoard();
     _move * ms = new _move[30];
     int count = 0;
     int k;
-//    k = d.find_kill_moves(1, ms, count);
-//    k = d.find_kill_move(1, 3, 1, 1, ms, count, 0);
-//    k = d.find_kill_move(1, 1, 1, 1, ms, count, 0);
+    k = d.find_kill_moves(1, ms, count);
+    k = d.find_kill_move(1, 3, 1, 1, ms, count, 0);
+    k = d.find_kill_move(1, 1, 1, 1, ms, count, 0);
 //    _move m(6,6,true,-1);
 //    m.add(4, 4, true, -1);
 //    d.make_moves(m);
-//    d.showBoard();
+    d.showBoard();
 //
 //    _move mm;
 //    mm.add(4, 4, false, -1);

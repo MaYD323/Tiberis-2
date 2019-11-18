@@ -174,6 +174,7 @@ bool brd::isInBoard(int x, int y){
     }
     return false;
 }
+
 bool brd::valid_one_kill(int r, int c, int rn, int cn,int color, const _move &m){
     if(!isInBoard(r, c) || !isInBoard(rn, cn)){
         return false;
@@ -182,9 +183,8 @@ bool brd::valid_one_kill(int r, int c, int rn, int cn,int color, const _move &m)
     {
         return false;
     }
-    return true;
-    if(true){
-        
+    if(rn+r == m.points[m.length-1].x && cn+c == m.points[m.length-1].y) {
+        return false;
     }
     return true;
 }
