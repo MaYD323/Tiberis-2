@@ -52,6 +52,14 @@ int _move::add(int x, int y, bool k, int color){
     
     return length;
 }
+bool _move::contain(int x, int y){
+    for(int i =length-1; i > -1; i++){
+        if (points[i].x == x, points[i].y == y){
+            return true;
+        }
+    }
+    return false;
+}
 _move & _move::operator=(const _move & m){
     kill = m.kill;
     length = m.length;
@@ -166,48 +174,56 @@ bool brd::isInBoard(int x, int y){
     }
     return false;
 }
-bool brd::valid_one_kill(int r, int c, int rn, int cn,int color){
-    if(isInBoard(r, c) && isInBoard(rn, cn)){
-        if(board[rn][cn] == 0 && board[(r+rn)/2][(c+cn)/2] * color < 0)
-        {
-            return true;
-        }
+bool brd::valid_one_kill(int r, int c, int rn, int cn,int color, const _move &m){
+    if(!isInBoard(r, c) || !isInBoard(rn, cn)){
+        return false;
     }
-    return false;
+    if(!board[rn][cn] == 0 || !board[(r+rn)/2][(c+cn)/2] * color < 0)
+    {
+        return false;
+    }
+    return true;
+    if(true){
+        
+    }
+    return true;
 }
 
 
 bool brd::whether_become_king(int r, int c, int p){
+    // only return true is non-king becomes a king.
     switch (p) {
         case 1:
-            if(r == 0){
+            if(r == row - 1){
                 return true;
             }
             break;
         case -1:
-            if(r == r-1){
+            if(r == 0){
                 return true;
             }
             break;
-        case -2:
-            return true;
-        case 2:
-            return true;
         default:
             return false;
     }
     return false;
 }
 int brd::find_kill_moves(int player, _move *moves, int &count){
-    
-    return 0;
+    for(int xi = 0; xi < row; xi ++){
+        for(int yi = 0; yi < col; yi++){
+            if (board[xi][yi] /player > 0){
+                find_kill_move(xi,yi,player,board[xi][yi],moves, count,0);
+            }
+        }
+    }
+    return count;
 }
 int brd::find_kill_move(int x, int y, int player, int color, _move *moves, int& count, int level){
      // new color
     int case_count = 0; // count how many moves found in this level;
     int k = color; // color in subcase
     int dx,dy = 0;
-    int pc = player + player;
+    int pc = color + color;
     _move tmp_move = moves[count];
 head:
     switch (pc) {
@@ -235,15 +251,17 @@ head:
     
     
 sub:
-    if(valid_one_kill(x, y, x+dx, y+dy,color)){
-        k *= whether_become_king(x+dx, y+dy, color)?2:1;
+    if(valid_one_kill(x, y, x+dx, y+dy,color,moves[count])){
+        k = color * whether_become_king(x+dx, y+dy, color)?2:1;
         if(level == 0){
+            // first level
             moves[count].add(x, y, true, color);
             moves[count].add(x+dx, y+dy,true, k);
         }else if(case_count == 0){
+            // first chile move
             moves[count].add(x+dx, y+dy,true, k);
         }else{
-            // child case, and not first hit
+            // second and further child move
             moves[count+1] = moves[count];
             moves[count+1].add(x+dx, y+dy,true, k);
             count ++;
@@ -258,7 +276,45 @@ sub:
     pc>0?pc--:pc++;
     goto head;
 }
- 
+int brd::find_peace_move(int x, int y, int color, _move *moves, int &count){
+    int case_count = 0; // count how many moves found in this level;
+    int k = color; // color in subcase
+    int dx,dy = 0;
+    int pc = color + color;
+    _move tmp_move = moves[count];
+head:
+    switch (pc) {
+        case 4:
+            dx =-1; dy = -1; goto sub; //
+        case 3:
+            dx = -1; dy = 1; goto sub;
+        case 2:
+            dx = 1; dy = -1; goto sub;
+        case 1:
+            dx = 1 ; dy = 1; goto sub;
+            break;
+            
+        case -4:
+            dx = 1 ; dy = -1; goto sub;
+        case -3:
+            dx = 1; dy = 1; goto sub;
+        case -2:
+            dx = -1; dy = -1; goto sub;
+        case -1:
+            dx = -1 ; dy = 1; goto sub;
+    }
+    return count;
+sub:
+    // validate move
+    if(board[x+dx][y+dy] == 0){
+        k *= whether_become_king(x+dx, y+dy, color)?2:1;
+        moves[count].add(x, y, true, color);
+        moves[count].add(x+dx, y+dy,true, k);
+        count ++;
+    }
+    pc>0?pc--:pc++;
+    goto head;
+}
 int brd::make_moves(const _move &m){
     // maybe necessary to check validity
     switch (m.kill) {
@@ -321,6 +377,10 @@ void brd::showBoard(){
 
 
 int brd::put(int x, int y, int c){
+    if(! isInBoard(x, y)){
+        cout <<"PUT : " << x << ","<< y << ") is out of bound"<<endl;
+        throw "out of bound";
+    }
     board[x][y] = c;
     return board[x][y];
 }

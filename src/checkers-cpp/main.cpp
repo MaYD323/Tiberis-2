@@ -53,23 +53,58 @@ int main2(int argc, char *argv[])
 
 int main(){
     Board a(7, 7, 2);
-    a.initializeGame();
-    a.board[2][2] = Checker("W",2,3);
+    //a.initializeGame();
+    a.board[4][0] = Checker("B",4,0);
+    a.board[5][1] = Checker("W",5,1);
+    a.board[5][3] = Checker("W",5,1);
+    a.blackCount++;
+    a.whiteCount=2;
     a.showBoard();
     
+    vector<vector<Move>> moves = a.getAllPossibleMoves("B");
 
+    int c = 0;
+    for (auto i : moves){
+        for (auto j : i){
+            c++;
+            cout << j.toString() << endl;
+            a.makeMove(j, 1);
+        }
+    }
+    cout << c << endl;
+    a.showBoard();
+    
+    moves = a.getAllPossibleMoves("B");
+
+    for (auto i : moves){
+        for (auto j : i){
+            c++;
+            cout << j.toString() << endl;
+        }
+    }
     
     
     
     brd d(7, 7, 2);
-    d.put(2,2,-1);
     
-    d.showBoard();
+    for(int i =0; i < 7; i ++){
+        for(int j = 0; j < 7; j++){
+            d.put(i,j,0);
+        }
+    }
+//    d.showBoard();
+    d.put(2,2,-1);
+    d.put(3,3,1);
+    d.put(4,0,1);
+    d.put(5,1,-1);
+    d.put(5,3,-1);
+//    d.showBoard();
     _move * ms = new _move[30];
     int count = 0;
     int k;
-    k = d.find_kill_move(1, 3, 1, 1, ms, count, 0);
-    k = d.find_kill_move(1, 1, 1, 1, ms, count, 0);
+//    k = d.find_kill_moves(1, ms, count);
+//    k = d.find_kill_move(1, 3, 1, 1, ms, count, 0);
+//    k = d.find_kill_move(1, 1, 1, 1, ms, count, 0);
 //    _move m(6,6,true,-1);
 //    m.add(4, 4, true, -1);
 //    d.make_moves(m);
@@ -80,10 +115,11 @@ int main(){
 //    mm.add(3, 3, false, -1);
 //    d.make_moves(mm);
 //    d.showBoard();
-    for(int i = 0; i < k; i++){
-        cout << ms[i] << endl;
-    }
-    delete[]ms;
+//    cout << k << endl;
+//    for(int i = 0; i < k; i++){
+//        cout << ms[i] << endl;
+//    }
+//    delete[]ms;
     return 0;
 }
 

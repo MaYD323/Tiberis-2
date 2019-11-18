@@ -27,6 +27,7 @@ public:
     _move();
     _move(int x, int y, bool k,int color);
     int add(int x, int y, bool k, int color);
+    bool contain(int x, int y);
     _move & operator=(const _move & m);
     std::string toString() const;
     friend std::ostream & operator << (std::ostream&os, const _move & m);
@@ -46,10 +47,11 @@ public:
     void initializeGame();
     bool isInBoard(int x, int y);
     
-    bool valid_one_kill(int r, int c, int rn, int cn,int color);
+    bool valid_one_kill(int r, int c, int rn, int cn,int color, const _move& m);
     bool whether_become_king(int r, int c, int p);
     int find_kill_moves(int player, _move * moves, int& count);
     int find_kill_move(int x, int y, int player, int color, _move* moves, int& count, int level);
+    int find_peace_move(int x, int y, int color, _move* moves, int& count);
     int make_moves(const _move & m);
     
     void showBoard();
