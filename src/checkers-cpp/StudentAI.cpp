@@ -232,7 +232,7 @@ double StudentAI::measure_their_time(){
 }
 StudentAI::~StudentAI(){
 
-    cout << endl;
+    //cout << endl;
     std::ostringstream oss;
     oss << "oppo first : " << ai_start << "\n";
     oss << "size : " << _c << "," << _r << "," << p <<"\n";
