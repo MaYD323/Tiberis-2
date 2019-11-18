@@ -82,7 +82,7 @@ Move StudentAI::GetMove(Move move)
                 v = t;
                 mv = j;
             }
-            cout << "AI : test move : " << j.toString()<< "minmax value : " <<t << endl;
+            /* emitted for shell testing */ //cout << "AI : test move : " << j.toString()<< "minmax value : " <<t << endl;
         }
     }
     //vm.push_back(moves[0][0]);
@@ -180,12 +180,12 @@ double StudentAI::measure_time(){
 }
 StudentAI::~StudentAI(){
     for (auto i : time_count){
-        cout << i << "-";
+        //cout << i << "-";
     }
     cout << endl;
     
     for (auto i : possible_moves_counts){
-        cout << i << "-";
+        //cout << i << "-";
     }
     cout << endl;
 }
