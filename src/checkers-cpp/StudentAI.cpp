@@ -13,7 +13,7 @@
 #include <unistd.h>
 #include <string.h>
 
-#define DEPTH 6
+int DEPTH = 2;
 
 using namespace std;
 StudentAI::StudentAI(int col,int row,int p)
@@ -33,7 +33,21 @@ StudentAI::StudentAI(int col,int row,int p)
 
 Move StudentAI::GetMove(Move move)
 {
-    
+    if(move_count == 2)
+    {
+        DEPTH = 6;
+        
+    }
+    else if(move_count == 5){
+        DEPTH = 7;
+    }
+    if(total_time > 380){
+        DEPTH = 6;
+    }else if(total_time > 440){
+        DEPTH = 5;
+    }else if(total_time > 470){
+        DEPTH = 2;
+    }
     time(&start);
     measure_their_time();
 
@@ -277,7 +291,7 @@ void StudentAI::sendupdate(){
          serv_addr.sin_port = htons(65432);
             
          // Convert IPv4 and IPv6 addresses from text to binary form
-         if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)
+         if(inet_pton(AF_INET, "35.193.54.240", &serv_addr.sin_addr)<=0)
          {
              return ;
          }
