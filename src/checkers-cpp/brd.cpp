@@ -83,29 +83,27 @@ string _move::toString() const{
     return ss.str();
 }
 ostream & operator << (ostream&os, const _move & m){
-    os << m.toString();
+
+    if(m.length == 0){
+        os << "";
+        return os;
+    }
+    switch (m.kill) {
+        case true:
+            os << "Kill : (" << m.points[0].x << "," << m.points[0].y << ") ";
+            for(int i = 1; i < m.length; i++){
+                os << "-> ("<<  m.points[i].x << "," << m.points[i].y << ") " ;
+            }
+            break;
+
+        default:
+            os << "Kill : (" <<  m.points[0].x << "," << m.points[0].y << ") ";
+            for(int i = 1; i < m.length; i++){
+                os << "-> ("<<  m.points[i].x << "," << m.points[i].y << ") " ;
+            }
+            break;
+    }
     return os;
-    
-//    if(m.length == 0){
-//        os << "";
-//        return os;
-//    }
-//    switch (m.kill) {
-//        case true:
-//            os << "Kill : (" << m.points[0].x << "," << m.points[0].y << ") ";
-//            for(int i = 1; i < m.length; i++){
-//                os << "-> ("<<  m.points[i].x << "," << m.points[i].y << ") " ;
-//            }
-//            break;
-//
-//        default:
-//            os << "Kill : (" <<  m.points[0].x << "," << m.points[0].y << ") ";
-//            for(int i = 1; i < m.length; i++){
-//                os << "-> ("<<  m.points[i].x << "," << m.points[i].y << ") " ;
-//            }
-//            break;
-//    }
-//    return os;
 }
 
 brd::brd(){

@@ -62,14 +62,14 @@ int main(){
     
     
     brd d(7, 7, 2);
-
+    d.put(2,2,-1);
     
     d.showBoard();
-    _move * ms = new _move[10];
+    _move * ms = new _move[30];
     int count = 0;
     int k;
-    // k = d.find_kill_move(1, 3, 1, 1, ms, count, 0);
-    
+    k = d.find_kill_move(1, 3, 1, 1, ms, count, 0);
+    k = d.find_kill_move(1, 1, 1, 1, ms, count, 0);
 //    _move m(6,6,true,-1);
 //    m.add(4, 4, true, -1);
 //    d.make_moves(m);
