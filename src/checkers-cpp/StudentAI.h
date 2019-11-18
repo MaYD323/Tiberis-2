@@ -20,15 +20,21 @@ public:
     time_t start;
     time_t end;
     double measure_time();
+    double measure_their_time();
     
     vector<double> time_count;
+    vector<double> oppotime_count;
+    vector<Move> our_move;
+    vector<Move> oppo_move;
     int move_count; // depth
+    int _c, _r,_p;
     vector<int> possible_moves_counts; // for analysis branch factor
     
     Board board;
 	StudentAI(int col, int row, int p);
     ~StudentAI();
 	virtual Move GetMove(Move board);
+    int count_king(int p);
     int h(int p);
     int minmax(vector<Move> m, bool max, int d);
 };

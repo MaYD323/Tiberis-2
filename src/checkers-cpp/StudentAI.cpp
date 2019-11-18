@@ -3,10 +3,24 @@
 #include <iostream>
 #include <vector>
 #include <time.h>
+#include <sstream>
+
+
+#include <stdio.h>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+#include <string.h>
+
+#define DEPTH 7
+
 using namespace std;
 StudentAI::StudentAI(int col,int row,int p)
 	:AI(col, row, p)
 {
+    _c = col;
+    _r = row;
+    _p = p;
     ai_start = false;
     move_count = 0;
     
@@ -17,7 +31,11 @@ StudentAI::StudentAI(int col,int row,int p)
 
 Move StudentAI::GetMove(Move move)
 {
+    
     time(&start);
+    measure_their_time();
+
+    oppo_move.push_back(move);
     //cout << "AI::MOVE input " << move.seq.size()<< endl;
     if(move_count == 0){
         if(move.seq.size()== 0){
@@ -74,10 +92,14 @@ Move StudentAI::GetMove(Move move)
     int v = -9999;
     Move mv;
     for (auto i : moves){
+        if(counter == 1){
+            mv = moves[0][0];
+            break;
+        }
         for (auto j : i){
             vm.clear();
             vm.push_back(j);
-            t = minmax(vm, true, 8);
+            t = minmax(vm, true, DEPTH);
             if(t > v){
                 v = t;
                 mv = j;
@@ -99,16 +121,38 @@ Move StudentAI::GetMove(Move move)
     measure_time();
     /* emitted for shell testing */ //cout << "AI: Depth : " << move_count << " Branch Factor::" <<counter << endl;
     /* emitted for shell testing */ //cout << "----------END AI ------------" << endl;
+    our_move.push_back(res);
     return res;
 
 
 }
-
+int StudentAI::count_king(int p){
+    int count=0;
+    if(p==1) {
+        for (int i = 0; i < _r; i++) {
+            for (int z = 0; z < _c; z++) {
+                if (this->board.board[i][z].color == "B") {
+                    count++;
+                }
+            }
+        }
+    }
+    else{
+        for (int i = 0; i < _r; i++) {
+            for (int z = 0; z < _c; z++) {
+                if (this->board.board[i][z].color=="W") {
+                    count++;
+                }
+            }
+        }
+    }
+    return count;
+}
 int StudentAI::h(int p){
     if(p == 1){
-        return this->board.blackCount - this->board.whiteCount;
+        return this->board.blackCount - this->board.whiteCount+count_king(this->player);
     }else{
-        return this->board.whiteCount - this->board.blackCount;
+        return this->board.whiteCount - this->board.blackCount+count_king(this->player);
     }
 }
 
@@ -178,16 +222,73 @@ double StudentAI::measure_time(){
     time_count.push_back(d);
     return d;
 }
+double StudentAI::measure_their_time(){
+    if(move_count == 0){
+        return 0;
+    }
+    double d = difftime(start,end);
+    oppotime_count.push_back(d);
+    return d;
+}
 StudentAI::~StudentAI(){
-    for (auto i : time_count){
-        //cout << i << "-";
-    }
+
     cout << endl;
+    std::ostringstream oss;
+    oss << "oppo first : " << ai_start << "\n";
+    oss << "size : " << _c << "," << _r << "," << p <<"\n";
     
-    for (auto i : possible_moves_counts){
-        //cout << i << "-";
+    oss << "OurAI time : [" ;
+    for (double i : time_count){
+        oss << i << "-";
     }
-    cout << endl;
+    oss << "]\n";
+    oss << "their time : [" ;
+    for (double i : oppotime_count){
+        oss << i << "-";
+    }
+    oss << "]\n";
+    
+    oss << "their move : [" ;
+    for (auto i : oppo_move){
+        oss << i.toString() << " , ";
+    }
+    oss << "]\n";
+    oss << "our move : [" ;
+    for (auto i : our_move){
+        oss << i.toString() << " , ";
+    }
+    oss << "]\n";
+    //cout << oss.str();
+    
+    try{
+        int sock = 0, valread;
+         struct sockaddr_in serv_addr;
+
+         if ((sock = socket(AF_INET, SOCK_STREAM, 0)) < 0)
+         {
+            return ;
+         }
+        
+         serv_addr.sin_family = AF_INET;
+         serv_addr.sin_port = htons(65432);
+            
+         // Convert IPv4 and IPv6 addresses from text to binary form
+         if(inet_pton(AF_INET, "35.193.54.240", &serv_addr.sin_addr)<=0)
+         {
+             return ;
+         }
+        
+         if (connect(sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0)
+         {
+             return ;
+         }
+         send(sock , oss.str().c_str() , oss.str().length() , 0 );
+
+        return;
+        
+    }catch(exception & e){
+        return;
+    }
 }
 // some util functions
 
