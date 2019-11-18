@@ -7,9 +7,9 @@
 
 int main(int argc, char *argv[])
 {
-    GameLogic main(7,7,2, "m", 1);
-    main.Run();
-    return 0;
+//    GameLogic main(7,7,2, "m", 1);
+//    main.Run();
+//    return 0;
     
 	if (argc < 5)
 	{
@@ -26,8 +26,8 @@ int main(int argc, char *argv[])
     {
         order = atoi(argv[5]);
     }
-    //GameLogic main(col,row,p, mode, order);//col,row,p,g,mode,debug
-	//main.Run();
+    GameLogic main(col,row,p, mode, order);//col,row,p,g,mode,debug
+	main.Run();
 
 	return 0;
 }

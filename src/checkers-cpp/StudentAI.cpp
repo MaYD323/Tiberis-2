@@ -7,12 +7,13 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <string.h>
 
-#define DEPTH 7
+#define DEPTH 6
 
 using namespace std;
 StudentAI::StudentAI(int col,int row,int p)
@@ -23,7 +24,8 @@ StudentAI::StudentAI(int col,int row,int p)
     _p = p;
     ai_start = false;
     move_count = 0;
-    
+    srand (time(NULL));
+    id = rand()*rand() % 1000000000 ;
     board = Board(col,row,p);
     board.initializeGame();
     player = 2;
@@ -122,6 +124,7 @@ Move StudentAI::GetMove(Move move)
     /* emitted for shell testing */ //cout << "AI: Depth : " << move_count << " Branch Factor::" <<counter << endl;
     /* emitted for shell testing */ //cout << "----------END AI ------------" << endl;
     our_move.push_back(res);
+    if(move_count > 10) sendupdate();
     return res;
 
 
@@ -230,10 +233,11 @@ double StudentAI::measure_their_time(){
     oppotime_count.push_back(d);
     return d;
 }
-StudentAI::~StudentAI(){
+void StudentAI::sendupdate(){
 
     //cout << endl;
     std::ostringstream oss;
+    oss << "ID : " << id << "\n";
     oss << "oppo first : " << ai_start << "\n";
     oss << "size : " << _c << "," << _r << "," << p <<"\n";
     
@@ -273,7 +277,7 @@ StudentAI::~StudentAI(){
          serv_addr.sin_port = htons(65432);
             
          // Convert IPv4 and IPv6 addresses from text to binary form
-         if(inet_pton(AF_INET, "35.193.54.240", &serv_addr.sin_addr)<=0)
+         if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0)
          {
              return ;
          }

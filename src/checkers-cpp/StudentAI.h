@@ -14,6 +14,7 @@
 class StudentAI :public AI
 {
 public:
+    unsigned int id;
     bool ai_start;
     int opponent; // int player in ai.h
     double total_time;
@@ -32,7 +33,7 @@ public:
     
     Board board;
 	StudentAI(int col, int row, int p);
-    ~StudentAI();
+    void sendupdate();
 	virtual Move GetMove(Move board);
     int count_king(int p);
     int h(int p);
