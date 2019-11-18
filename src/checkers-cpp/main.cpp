@@ -2,25 +2,8 @@
 
 #include "GameLogic.h"
 
-#include "brd.h"
 #include "StudentAI.h"
-int main11(){
-    logger l("l1");
-    l.log("line1");
-    l.log("line2");
-    return 0;
-}
 
-int main1(){
-    brd a(5,5,5);
-    a.showBoard();
-    
-    
-    
-    
-    
-    return 0;
-}
 
 int main(int argc, char *argv[])
 {

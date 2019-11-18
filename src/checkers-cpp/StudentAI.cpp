@@ -68,7 +68,7 @@ Move StudentAI::GetMove(Move move)
     
     
     
-    cout << "--------TEST MINXMAX---------" << endl;
+    /* emitted for shell testing */ //cout << "--------TEST MINXMAX---------" << endl;
     vector<Move> vm;
     int t;
     int v = -9999;
@@ -98,7 +98,7 @@ Move StudentAI::GetMove(Move move)
     time(&end);
     measure_time();
     /* emitted for shell testing */ //cout << "AI: Depth : " << move_count << " Branch Factor::" <<counter << endl;
-    cout << "----------END AI ------------" << endl;
+    /* emitted for shell testing */ //cout << "----------END AI ------------" << endl;
     return res;
 
 
