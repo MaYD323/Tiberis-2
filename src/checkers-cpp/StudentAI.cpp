@@ -12,6 +12,10 @@ StudentAI::StudentAI(int col,int row,int p)
     
     board = Board(col,row,p);
     board.initializeGame();
+    
+    myboard = brd(col, row, p);
+    board.showBoard();
+    myboard.showBoard();
     player = 2;
 }
 
@@ -19,24 +23,32 @@ Move StudentAI::GetMove(Move move)
 {
     time(&start);
     //cout << "AI::MOVE input " << move.seq.size()<< endl;
+    _move mm(move, &myboard);
     if(move_count == 0){
         if(move.seq.size()== 0){
             ai_start = true;
             player = 1;
+            myplayer = 1;
             opponent = 2;
+            myopponent = 1;
         }else{
             player = 2;
+            myplayer = -1;
             opponent = 1;
+            myopponent = 1;
             board.makeMove(move,opponent);
-
+            myboard.make_moves(mm);
         }
     }else{
         board.makeMove(move, opponent);
+        myboard.make_moves(mm);
     }
-
     /* emitted for shell testing */ //cout << h(player) << endl;
-    vector<vector<Move>> moves;
-    
+    vector<vector<Move>>  moves;
+    cout <<mm.toString() << "\n" <<move.toString() << endl;
+    if(mm.toString() != move.toString()){
+        //throw "move";
+    }
 //    moves = board.getAllPossibleMoves(opponent);
 //    for (auto i : moves){
 //        for (auto j : i){
@@ -47,12 +59,45 @@ Move StudentAI::GetMove(Move move)
 //    board.makeMove(moves[0][0], opponent);
 //    board.showBoard();
     //
+    myboard.showBoard();
     moves = board.getAllPossibleMoves(player);
+    _move * mvs = new _move[20];
+    int mvs_count = 0;
+    int tmp = myboard.find_kill_moves(myplayer, mvs, mvs_count);
+    if(mvs_count == 0){
+        myboard.find_peace_moves(myplayer, mvs, mvs_count);
+    }
+    myboard.showBoard();
+    cout << "length: " << mvs_count << endl;
+    for(int i = 0; i < mvs_count ; i++){
+        cout << mvs[i] << endl;
+    }
+    cout << endl;
+    for (auto i : moves){
+        for (auto j : i){
+            cout << j.toString() << endl;
+        }
+    }
     // count possible moves.
     int counter = 0;
     for (auto i : moves){
         for (auto j : i){
+            
+            for(int k = 0; k < mvs_count; k++){
+                if(j.toString() == mvs[k].toString()){
+                    break;
+                }
+                if(k < mvs_count){
+                    continue;
+                }
+                cout << "error check find moves" <<endl;
+                cout <<mvs[k].toString() << endl;
+                cout << j.toString() << endl;
+                throw exception();
+            }
+            
             counter ++;
+            cout << j.toString() << endl;
         }
     }
     possible_moves_counts.push_back(counter);
@@ -68,7 +113,7 @@ Move StudentAI::GetMove(Move move)
     
     
     
-    cout << "--------TEST MINXMAX---------" << endl;
+    //cout << "--------TEST MINXMAX---------" << endl;
     vector<Move> vm;
     int t;
     int v = -9999;
@@ -77,12 +122,12 @@ Move StudentAI::GetMove(Move move)
         for (auto j : i){
             vm.clear();
             vm.push_back(j);
-            t = minmax(vm, true, 8);
+            t = minmax(vm, true, 3);
             if(t > v){
                 v = t;
                 mv = j;
             }
-            cout << "AI : test move : " << j.toString()<< "minmax value : " <<t << endl;
+            //cout << "AI : test move : " << j.toString()<< "minmax value : " <<t << endl;
         }
     }
     //vm.push_back(moves[0][0]);
@@ -99,6 +144,8 @@ Move StudentAI::GetMove(Move move)
     measure_time();
     /* emitted for shell testing */ //cout << "AI: Depth : " << move_count << " Branch Factor::" <<counter << endl;
     cout << "----------END AI ------------" << endl;
+    _move r(res, &myboard);
+    myboard.make_moves(r);
     return res;
 
 
@@ -111,7 +158,21 @@ int StudentAI::h(int p){
         return this->board.whiteCount - this->board.blackCount;
     }
 }
-
+int StudentAI::minmax(_move * ms, int length, bool max, int d){
+    if(d == 0 || length == 0){
+        return h(player);
+    }
+    int v;
+    int t;
+    if(max){
+        for(int i = 0; i < length; i++){
+            
+        }
+    }else{
+        
+    }
+    return v;
+}
 int StudentAI::minmax(vector<Move> m, bool max, int d){
     if(d == 0 || m.size() == 0){
         return h(player);

@@ -2,6 +2,8 @@
 #define STUDENTAI_H
 #include "AI.h"
 #include "Board.h"
+#include "brd.h"
+
 #include <string>
 #include <vector>
 #include <fstream>
@@ -21,6 +23,14 @@ public:
     time_t end;
     double measure_time();
     
+    //brd
+    brd myboard;
+    int myplayer; // 1 -1
+    int myopponent;
+    
+    
+    //
+    
     vector<double> time_count;
     int move_count; // depth
     vector<int> possible_moves_counts; // for analysis branch factor
@@ -30,7 +40,8 @@ public:
     ~StudentAI();
 	virtual Move GetMove(Move board);
     int h(int p);
-    int minmax(vector<Move> m, bool max, int d);
+    int minmax(vector<Move> m,  bool max, int d);
+    int minmax(_move * ms , int length, bool max, int d);
 };
 
 

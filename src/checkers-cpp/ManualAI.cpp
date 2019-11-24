@@ -1,6 +1,8 @@
 #include "ManualAI.h"
 #include <iostream>
-
+#include <stdio.h>
+#include <stdlib.h>     /* srand, rand */
+#include <time.h>
 ManualAI::ManualAI(int col, int row, int p)
 	:AI(col, row, p)
 {
@@ -33,12 +35,28 @@ Move ManualAI::GetMove(Move move)
     int n = -1;
     int m = -1;
     do {
-        n = 0;//cin >> n;
-        m = 0;//cin >> m;
+//         cin >> n;
+//         cin >> m;
+        n = 0;
+        m = 0;
         if ((n < 0 || n >= moves.size()) || (m < 0 || m >= moves[n].size()))
             cout << "Invalid move" << "\n" << "Waiting for input {int} {int}: ";
     } while ((n < 0 || n >= moves.size()) || (m < 0 || m >= moves[n].size()));
+    
+    vector<Move> vm;
+    int cc = 0;
+    
+    for (auto i : moves){
+        for (auto j : i){
+            cc ++;
+            vm.push_back(j);
+        }
+    }
+    int iSecret, iGuess;
+    srand (time(NULL));
+
     Move res = moves[n][m];
+    res = vm[rand()%cc];
     board.makeMove(res,player);
     return res;
 }

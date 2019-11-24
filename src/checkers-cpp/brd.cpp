@@ -19,11 +19,38 @@
 using namespace std;
 
 #include <sstream>
-
+#include <vector>
+#include "Utils.h"
 
 _move::_move(){
     length = 0;
     kill = 0;
+}
+_move::_move(const Move& m, const void*  b){
+    brd* bb = (brd*) b;
+    length = 0;
+    kill = 0;
+    int i = 0;
+    std::vector<Position>::const_iterator it = m.seq.begin();
+    if( (it->x - (it+1)->x) %2 == 0 && (it->y - (it+1)->y) %2 == 0){
+        kill = 1;
+    }
+    int _x, _y, _c;
+    
+    _x = it -> x;
+    _y = it -> y;
+    _c = bb->board[_x][_y];
+    
+    for (it; it != m.seq.end(); ++it, ++i){
+        _x = it -> x;
+        _y = it -> y;
+        
+        if(bb->whether_become_king(_x, _y, _c)){
+            _c *= 2;
+        }
+        add(it->x, it->y, kill, _c);
+        
+    }
 }
 _move::_move(int x, int y, bool k, int color){
     points[0] = point{x,y,color};
@@ -52,10 +79,15 @@ int _move::add(int x, int y, bool k, int color){
     
     return length;
 }
-bool _move::contain(int x, int y){
-    for(int i =length-1; i > -1; i++){
-        if (points[i].x == x, points[i].y == y){
-            return true;
+bool _move::contain(int x, int y, int xn, int yn){
+    if(length < 2){
+        return false;
+    }else{
+        int i = 1;
+        for (i; i< length; i++){
+            if((points[i-1].x == x && points[i-1].y == y && points[i].x == xn && points[i].y == yn) ||(points[i-1].x == xn && points[i-1].y == yn && points[i].x == x && points[i].y == y)){
+                return true;
+            }
         }
     }
     return false;
@@ -73,21 +105,17 @@ string _move::toString() const{
         return string("");
     }
     std::ostringstream ss;
-    switch (kill) {
-        case true:
-            ss << "Kill : (" <<  points[0].x << "," << points[0].y << ") ";
-            for(int i = 1; i < length; i++){
-                ss << "-> ("<<  points[i].x << "," << points[i].y << ") " ;
-            }
-            break;
-            
-        default:
-            ss << "Kill : (" <<  points[0].x << "," << points[0].y << ") ";
-            for(int i = 1; i < length; i++){
-                ss << "-> ("<<  points[i].x << "," << points[i].y << ") " ;
-            }
-            break;
+    
+    ss << "(" <<  points[0].x << "," << points[0].y  << ")";
+    for(int i = 1; i < length; i++){
+        ss << "-("<<  points[i].x << "," << points[i].y  << ")" ;
     }
+//    ss << "(" <<  points[0].x << "," << points[0].y <<"," << points[0].color << ")";
+//    for(int i = 1; i < length; i++){
+//        ss << "-("<<  points[i].x << "," << points[i].y <<"," << points[i].color << ")" ;
+//    }
+    
+    
     return ss.str();
 }
 ostream & operator << (ostream&os, const _move & m){
@@ -105,7 +133,7 @@ ostream & operator << (ostream&os, const _move & m){
             break;
 
         default:
-            os << "Kill : (" <<  m.points[0].x << "," << m.points[0].y << ") ";
+            os << "Move : (" <<  m.points[0].x << "," << m.points[0].y << ") ";
             for(int i = 1; i < m.length; i++){
                 os << "-> ("<<  m.points[i].x << "," << m.points[i].y << ") " ;
             }
@@ -118,6 +146,7 @@ brd::brd(){
     col = 0;
     row = 0;
     p = 0;
+    blackCount,whiteCount,black_king,white_king = 0;
 }
 
 brd::brd(int c, int r, int pieces){
@@ -175,18 +204,16 @@ bool brd::isInBoard(int x, int y){
     return false;
 }
 
-bool brd::valid_one_kill(int r, int c, int rn, int cn,int color, const _move &m){
-    if(!isInBoard(r, c) || !isInBoard(rn, cn)){
-        return false;
-    }
-    if(!board[rn][cn] == 0 || !board[(r+rn)/2][(c+cn)/2] * color < 0)
-    {
-        return false;
-    }
-    if(rn+r == m.points[m.length-1].x && cn+c == m.points[m.length-1].y) {
-        return false;
-    }
-    return true;
+bool brd::valid_one_kill(int r, int c, int rn, int cn,int color){
+//    bool a =board[rn][cn] == 0;
+//    bool b =board[(r+rn)/2][(c+cn)/2] * color < 0;
+    if( isInBoard(r, c) && isInBoard(rn, cn) &&
+       board[rn][cn] == 0 &&
+       board[(r+rn)/2][(c+cn)/2] * color < 0
+       )
+    {return true;}
+
+    return false;
 }
 
 
@@ -216,12 +243,16 @@ int brd::find_kill_moves(int player, _move *moves, int &count){
             }
         }
     }
-    return count;
+    int c = count;
+    return c;
 }
 int brd::find_kill_move(int x, int y, int player, int color, _move *moves, int& count, int level){
      // new color
     int case_count = 0; // count how many moves found in this level;
-    int k = color; // color in subcase
+    int k; // color in subcase
+    bool king;
+    int reco; // change killed to 0, then back
+    int rect;
     int dx,dy = 0;
     int pc = color + color;
     _move tmp_move = moves[count];
@@ -251,30 +282,57 @@ head:
     
     
 sub:
-    if(valid_one_kill(x, y, x+dx, y+dy,color,moves[count])){
-        k = color * whether_become_king(x+dx, y+dy, color)?2:1;
+    k = color;
+    if(valid_one_kill(x, y, x+dx, y+dy,color) && !moves[count].contain(x, y, x+dx, y+dy)){
+        rect = board[x][y];
+        reco = board[x+dx/2][y+dy/2];
+        board[x+dx/2][y+dy/2] = 0;
+        board[x][y] = 0;
+        
         if(level == 0){
-            // first level
             moves[count].add(x, y, true, color);
-            moves[count].add(x+dx, y+dy,true, k);
-        }else if(case_count == 0){
+        }
+        
+        king = whether_become_king(x+dx, y+dy, color);
+        k *= king? 2 : 1;
+       
+//        if(level == 0){
+//            // first level
+//            moves[count].add(x+dx, y+dy,true, k);
+//        }else
+        if(case_count == 0 && level!= 0){
             // first chile move
-            moves[count].add(x+dx, y+dy,true, k);
-        }else{
+        }else if (case_count != 0 && level != 0){
             // second and further child move
-            moves[count+1] = moves[count];
-            moves[count+1].add(x+dx, y+dy,true, k);
+            moves[count+1] = tmp_move;
             count ++;
         }
-        find_kill_move(x+dx, y+dy, player, k, moves, count, level+1);
-        if(level == 0){
+        moves[count].add(x+dx, y+dy,true, k);
+        if(!king){
+            find_kill_move(x+dx, y+dy, player, k, moves, count, level+1);
+        }
+        
+        if(level == 0 ){
             count ++;
         }
         case_count++;
+        board[x+dx/2][y+dy/2] = reco;
+        board[x][y] = rect;
+        
     }
     
     pc>0?pc--:pc++;
     goto head;
+}
+int brd::find_peace_moves(int player, _move *moves, int &count){
+    for(int xi = 0; xi < row; xi ++){
+        for(int yi = 0; yi < col; yi++){
+            if (board[xi][yi] /player > 0){
+                find_peace_move(xi, yi, board[xi][yi], moves, count);
+            }
+        }
+    }
+    return count;
 }
 int brd::find_peace_move(int x, int y, int color, _move *moves, int &count){
     int case_count = 0; // count how many moves found in this level;
@@ -306,10 +364,13 @@ head:
     return count;
 sub:
     // validate move
-    if(board[x+dx][y+dy] == 0){
+    if(!isInBoard(x+dx, y+dy)){
+        
+    }
+    else if(board[x+dx][y+dy] == 0){
         k *= whether_become_king(x+dx, y+dy, color)?2:1;
-        moves[count].add(x, y, true, color);
-        moves[count].add(x+dx, y+dy,true, k);
+        moves[count].add(x, y, false, color);
+        moves[count].add(x+dx, y+dy,false, k);
         count ++;
     }
     pc>0?pc--:pc++;
@@ -328,15 +389,49 @@ int brd::make_moves(const _move &m){
             if(board[(m.points[0].x)][(m.points[0].y)] == 0){
                 throw "invalid move";
             }
-            board[(m.points[1].x)][(m.points[1].x)] = m.points[1].color;
-            board[(m.points[0].x)][(m.points[0].x)] = 0;
+            board[(m.points[1].x)][(m.points[1].y)] = m.points[1].color;
+            board[(m.points[0].x)][(m.points[0].y)] = 0;
+            switch (m.points[1].color) {
+                case 2:
+                    black_king++;
+                    break;
+                    
+                case -2:
+                    white_king++;
+                    break;
+            }
             break;
         case true:
+            // killing
             // pass checking validity
             for(int i = 0; i < m.length -1; i++){
-                board[(m.points[i+1].x)][(m.points[i+1].x)] = m.points[i+1].color;
-                board[(m.points[i].x)][(m.points[i].x)] = 0;
-                board[(m.points[i].x + m.points[i+1].x)/2][(m.points[i].x + m.points[i+1].x)/2] = 0;
+                switch (m.points[1].color) {
+                    case 2:
+                        black_king++;
+                        break;
+                        
+                    case -2:
+                        white_king++;
+                        break;
+                }
+                switch (board[(m.points[i].x + m.points[i+1].x)/2][(m.points[i].y + m.points[i+1].y)/2]) {
+                    case 2:
+                        black_king --;
+                    case 1:
+                        blackCount --;
+                        break;
+                    case -2:
+                        white_king --;
+                    case -1:
+                        whiteCount --;
+                        break;
+                }
+                board[(m.points[i+1].x)][(m.points[i+1].y)] = m.points[i+1].color;
+                board[(m.points[i].x)][(m.points[i].y)] = 0;
+                board[(m.points[i].x + m.points[i+1].x)/2][(m.points[i].y + m.points[i+1].y)/2] = 0;
+                
+                
+                
             }
         default:
             break;
