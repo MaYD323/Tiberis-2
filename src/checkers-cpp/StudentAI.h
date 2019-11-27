@@ -24,7 +24,7 @@ public:
     double measure_time();
     
     //brd
-    brd myboard;
+     brd myboard;
     int myplayer; // 1 -1
     int myopponent;
     
@@ -39,9 +39,9 @@ public:
 	StudentAI(int col, int row, int p);
     ~StudentAI();
 	virtual Move GetMove(Move board);
-    int h(int p);
+    int h(int p)const;
     int minmax(vector<Move> m,  bool max, int d);
-    int minmax(_move * ms , int length, bool max, int d);
+    int minmax(_move * ms , int length, bool max, int d,brd * nb)const;
 };
 
 

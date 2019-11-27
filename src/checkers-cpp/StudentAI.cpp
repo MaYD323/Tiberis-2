@@ -4,6 +4,7 @@
 #include <vector>
 #include <time.h>
 using namespace std;
+
 StudentAI::StudentAI(int col,int row,int p)
 	:AI(col, row, p)
 {
@@ -13,9 +14,10 @@ StudentAI::StudentAI(int col,int row,int p)
     board = Board(col,row,p);
     board.initializeGame();
     
-    myboard = brd(col, row, p);
-    board.showBoard();
-    myboard.showBoard();
+    StudentAI::myboard =  brd(col, row, p);
+    cout << "sizeof(myboard)" << sizeof(myboard) << endl;
+    cout << "sizeof(board)" << sizeof(board) << endl;
+
     player = 2;
 }
 
@@ -30,7 +32,7 @@ Move StudentAI::GetMove(Move move)
             player = 1;
             myplayer = 1;
             opponent = 2;
-            myopponent = 1;
+            myopponent = -1;
         }else{
             player = 2;
             myplayer = -1;
@@ -45,10 +47,8 @@ Move StudentAI::GetMove(Move move)
     }
     /* emitted for shell testing */ //cout << h(player) << endl;
     vector<vector<Move>>  moves;
-    cout <<mm.toString() << "\n" <<move.toString() << endl;
-    if(mm.toString() != move.toString()){
-        //throw "move";
-    }
+    cout <<mm << "\n" <<move.toString() << endl;
+
 //    moves = board.getAllPossibleMoves(opponent);
 //    for (auto i : moves){
 //        for (auto j : i){
@@ -67,18 +67,11 @@ Move StudentAI::GetMove(Move move)
     if(mvs_count == 0){
         myboard.find_peace_moves(myplayer, mvs, mvs_count);
     }
-    myboard.showBoard();
+    cout << "black count:: " << (myboard).blackCount << "\nBlack King:: " << (myboard).black_king << "\nwhite count:: " << (myboard).whiteCount << "\nWhite King::" << (myboard).white_king << endl;
     cout << "length: " << mvs_count << endl;
     for(int i = 0; i < mvs_count ; i++){
         cout << mvs[i] << endl;
     }
-    cout << endl;
-    for (auto i : moves){
-        for (auto j : i){
-            cout << j.toString() << endl;
-        }
-    }
-    // count possible moves.
     int counter = 0;
     for (auto i : moves){
         for (auto j : i){
@@ -97,7 +90,6 @@ Move StudentAI::GetMove(Move move)
             }
             
             counter ++;
-            cout << j.toString() << endl;
         }
     }
     possible_moves_counts.push_back(counter);
@@ -110,9 +102,7 @@ Move StudentAI::GetMove(Move move)
     vector<Move> checker_moves = moves[i];
     int j = rand() % (checker_moves.size());
     */
-    
-    
-    
+ 
     //cout << "--------TEST MINXMAX---------" << endl;
     vector<Move> vm;
     int t;
@@ -122,14 +112,25 @@ Move StudentAI::GetMove(Move move)
         for (auto j : i){
             vm.clear();
             vm.push_back(j);
-            t = minmax(vm, true, 3);
+            t = minmax(vm, true, 10);
             if(t > v){
                 v = t;
                 mv = j;
             }
-            //cout << "AI : test move : " << j.toString()<< "minmax value : " <<t << endl;
+            cout << "AI : test move : " << j.toString()<< "minmax value : " <<t << endl;
         }
     }
+    
+    _move mymv;
+    for(int i = 0; i < mvs_count; i++){
+        t = minmax(mvs, mvs_count, true, 7,&myboard);
+        cout << "minmax value : " <<t << "move ::" << mvs[i] << endl;
+        if(t > v){
+            v = t;
+            mymv = mvs[i];
+        }
+    }
+    
     //vm.push_back(moves[0][0]);
     
     //cout << "minmax value : " <<minmax(vm, true, 5) << endl;
@@ -151,28 +152,14 @@ Move StudentAI::GetMove(Move move)
 
 }
 
-int StudentAI::h(int p){
+int StudentAI::h(int p)const{
     if(p == 1){
         return this->board.blackCount - this->board.whiteCount;
     }else{
         return this->board.whiteCount - this->board.blackCount;
     }
 }
-int StudentAI::minmax(_move * ms, int length, bool max, int d){
-    if(d == 0 || length == 0){
-        return h(player);
-    }
-    int v;
-    int t;
-    if(max){
-        for(int i = 0; i < length; i++){
-            
-        }
-    }else{
-        
-    }
-    return v;
-}
+
 int StudentAI::minmax(vector<Move> m, bool max, int d){
     if(d == 0 || m.size() == 0){
         return h(player);
@@ -231,6 +218,59 @@ int StudentAI::minmax(vector<Move> m, bool max, int d){
     }
     
     
+    return v;
+}
+int StudentAI::minmax(_move * ms, int length, bool max, int d, brd * nb ) const{
+    if(d == 0 || length == 0){
+        return 0;
+    }
+    int v;
+    int t;
+    _move chosen_move;
+    _move * new_ms;
+    int count = 0;
+    
+    if(max){
+        v = -9999;
+        for(int i = 0; i < length; i++){
+            count = 0;
+            new_ms = new _move[20];
+            brd newbrd(*nb);
+            newbrd.make_moves(ms[i]);
+            newbrd.find_peace_moves(myopponent, new_ms, count);
+            if(count == 0){
+                newbrd.find_kill_moves(myopponent, new_ms, count);
+            }
+            t = minmax(new_ms, count, !max, d-1,&newbrd);
+            if(t > v){
+                v = t;
+                chosen_move = ms[i];
+            }
+            delete[] new_ms;
+        }
+        return v;
+    }else{
+        
+        v = -9999;
+        for(int i = 0; i < length; i++){
+            count = 0;
+            new_ms = new _move[20];
+            brd newbrd(*nb);
+            newbrd.make_moves(ms[i]);
+            newbrd.find_peace_moves(myplayer, new_ms, count);
+            if(count == 0){
+                newbrd.find_kill_moves(myplayer, new_ms, count);
+            }
+            t = minmax(new_ms, count, !max, d-1,&newbrd);
+            if(t < v){
+                v = t;
+                chosen_move = ms[i];
+            }
+            delete[] new_ms;
+
+        }
+        return v;
+    }
     return v;
 }
 double StudentAI::measure_time(){

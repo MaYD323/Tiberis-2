@@ -28,7 +28,7 @@ public:
     _move(const Move & m, const void * b);
     _move(int x, int y, bool k,int color);
     int add(int x, int y, bool k, int color);
-    bool contain(int x, int y, int xn, int yn);
+    bool contain(int x, int y, int xn, int yn)const;
     _move & operator=(const _move & m);
     
     std::string toString() const;
@@ -37,8 +37,7 @@ public:
 
 class brd{
 public:
-    int col,row, p;
-    
+    static int col,row, p;
     // state block
     int** board; // 2D dynamic allocation. 
     int blackCount,whiteCount;
@@ -46,19 +45,21 @@ public:
     
     brd();
     brd(int c, int r, int pieces);
+    brd(const brd & b);
+    ~brd();
     void initializeGame();
-    bool isInBoard(int x, int y);
+    bool isInBoard(int x, int y)const;
     
-    bool valid_one_kill(int r, int c, int rn, int cn,int color);
-    bool whether_become_king(int r, int c, int p);
-    int find_kill_moves(int player, _move * moves, int& count);
-    int find_kill_move(int x, int y, int player, int color, _move* moves, int& count, int level);
-    int find_peace_moves(int player, _move *moves, int &count);
+    bool valid_one_kill(int r, int c, int rn, int cn,int color) const;
+    bool whether_become_king(int r, int c, int p) const;
+    int find_kill_moves(int player, _move * moves, int& count) const;
+    int find_kill_move(int x, int y, int player, int color, _move* moves, int& count, int level) const;
+    int find_peace_moves(int player, _move *moves, int &count) const;
 
-    int find_peace_move(int x, int y, int color, _move* moves, int& count);
+    int find_peace_move(int x, int y, int color, _move* moves, int& count)const;
     int make_moves(const _move & m);
-    
-    void showBoard();
+    int make_moves(const _move * m);
+    void showBoard()const;
     
     
     

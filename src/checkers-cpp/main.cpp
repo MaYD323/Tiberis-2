@@ -22,12 +22,191 @@
 //
 //    return 0;
 //}
-
-int main(int argc, char *argv[])
-{
-    cout << sizeof(brd);
+int player = 1;
+int opponent  = 2;
+int myplayer = 1;
+int myopponent = -1;
+int boardminmax(vector<Move> m, bool max, int d,Board & board);
+int test_board();
+int myboardminmax(_move * ms, int length, bool max, int d, brd * nb );
+int test_myboard();
+int main(){
+    test_board();
+    //test_myboard();
     return 0;
-    GameLogic main(8,8,2, "m", 1);
+}
+
+int boardminmax(vector<Move> m, bool max, int d,Board & board){
+    if(d == 0 || m.size() == 0){
+        return 1;
+    }
+    int v;
+    int t;
+    Move chosen_move;
+    vector<vector<Move>> possible_moves;
+    vector<Move> possivle_moves_1d;
+    if(max){
+        v = -9999;
+        for(auto i : m){
+            possible_moves.clear();
+            possivle_moves_1d.clear();
+            
+            board.makeMove(i, player);
+            possible_moves = board.getAllPossibleMoves(opponent);
+            // convert 2d vector to 1d vector
+            for( auto l1 : possible_moves ){
+                for(auto l2 : l1){
+                    possivle_moves_1d.push_back(l2);
+                }
+            }
+            
+            t = boardminmax(possivle_moves_1d, !max, d-1,board);
+            if(t > v){
+                v = t;
+                chosen_move = i;
+            }
+            board.Undo();
+        }
+        return v;
+    }else{
+        v = 9999;
+        for(auto i : m){
+            possible_moves.clear();
+            possivle_moves_1d.clear();
+            
+            board.makeMove(i, opponent);
+            possible_moves = board.getAllPossibleMoves(player);
+            // convert 2d vector to 1d vector
+            for( auto l1 : possible_moves ){
+                for(auto l2 : l1){
+                    possivle_moves_1d.push_back(l2);
+                }
+            }
+            
+            t = boardminmax(possivle_moves_1d, !max, d-1,board);
+            if(t < v){
+                v = t;
+                chosen_move = i;
+            }
+            board.Undo();
+        }
+        return v;
+    }
+    
+    
+    return v;
+}
+int test_board(){
+    int total; //= 1 << 20;// 1M
+    total = 10;
+    for(int i = 0; i < total; i++){
+        Board b(7, 7, 2);
+        b.initializeGame();
+        vector<vector<Move>> moves = b.getAllPossibleMoves(player);
+        
+        
+        vector<Move> vm;
+        int t;
+        int v = -9999;
+        Move mv;
+        for (auto i : moves){
+            for (auto j : i){
+                vm.clear();
+                vm.push_back(j);
+                t = boardminmax(vm, true, 8,b);
+                cout << j.toString() << " :: " << t << endl;
+                if(t > v){
+                    v = t;
+                    mv = j;
+                }
+            }
+        }
+    }
+    return 0;
+}
+int myboardminmax(_move * ms, int length, bool max, int d, brd * nb ) {
+    if(d == 0 || length == 0){
+        return 1;
+    }
+    int v;
+    int t;
+    _move chosen_move;
+    _move * new_ms;
+    int count = 0;
+    
+    if(max){
+        v = -9999;
+        for(int i = 0; i < length; i++){
+            count = 0;
+            new_ms = new _move[20];
+            brd newbrd(*nb);
+            newbrd.make_moves(ms[i]);
+            newbrd.find_peace_moves(myopponent, new_ms, count);
+            if(count == 0){
+                newbrd.find_kill_moves(myopponent, new_ms, count);
+            }
+            t = myboardminmax(new_ms, count, !max, d-1,&newbrd);
+            if(t > v){
+                v = t;
+                chosen_move = ms[i];
+            }
+            delete[] new_ms;
+        }
+        return v;
+    }else{
+        
+        v = 9999;
+        for(int i = 0; i < length; i++){
+            count = 0;
+            new_ms = new _move[20];
+            brd newbrd(*nb);
+            newbrd.make_moves(ms[i]);
+            newbrd.find_peace_moves(myplayer, new_ms, count);
+            if(count == 0){
+                newbrd.find_kill_moves(myplayer, new_ms, count);
+            }
+            t = myboardminmax(new_ms, count, !max, d-1,&newbrd);
+            if(t < v){
+                v = t;
+                chosen_move = ms[i];
+            }
+            delete[] new_ms;
+
+        }
+        return v;
+    }
+    return v;
+}
+int test_myboard(){
+    int total = 10;
+    for(int c = 0; c < total; c++){
+        
+        brd b(7,7,2);
+        _move * mvs = new _move[20];
+        int count = 0;
+        b.find_peace_moves(myplayer, mvs, count);
+        if(count == 0){
+            b.find_kill_moves(myplayer, mvs, count);
+        }
+        
+        int t;
+        int v = -9999;
+        _move mymv;
+        for(int i = 0; i < count; i++){
+            t = myboardminmax(mvs, count, true, 8,&b);
+            cout << "minmax value : " <<t << "move ::" << mvs[i] << endl;
+            if(t > v){
+                v = t;
+                mymv = mvs[i];
+            }
+        }
+    }
+    return 0;
+}
+int maink(int argc, char *argv[])
+{
+    
+    GameLogic main(7,7,2, "m", 1);
     main.Run();
     return 0;
     
